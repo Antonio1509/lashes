@@ -1,8 +1,7 @@
 /* ===== EDIT YOUR LINKS HERE ===== */
 const CONFIG = {
   whatsappNumber: "+27 67 847 7634",
-  instagram: "https://instagram.com/im.michx_",
-  contactFormUrl: ""               // e.g. a Formspree URL. Leave "" for demo mode
+  instagram: "https://instagram.com/im.michx_"
 };
 
 const $ = (s, el = document) => el.querySelector(s);
@@ -126,14 +125,14 @@ form.addEventListener("submit", async e => {
   const m = check($("#fe"), /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test($("#fe").value), "Please enter a valid email.");
   const t = check($("#fm"), $("#fm").value.trim().length > 4, "Please write a short message.");
   if (!(n && m && t)) { status.textContent = ""; return; }
-  if (!CONFIG.contactFormUrl) {
-    status.textContent = "Form is valid, but not connected yet. Add a form service URL in script.js.";
-    return;
-  }
-  try {
-    const res = await fetch(CONFIG.contactFormUrl, { method: "POST", headers: { Accept: "application/json" }, body: new FormData(form) });
-    if (!res.ok) throw new Error();
-    status.textContent = "Thank you! Your message has been sent ♡";
-    form.reset();
-  } catch { status.textContent = "Something went wrong. Please message us on WhatsApp."; }
+  const subject = `Website message from ${$("#fn").value.trim()}`;
+  const body = [
+    `Name: ${$("#fn").value.trim()}`,
+    `Email: ${$("#fe").value.trim()}`,
+    "",
+    $("#fm").value.trim()
+  ].join("\n");
+  const composeUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=micahnurse60%40gmail.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.open(composeUrl, "_blank", "noopener");
+  status.textContent = "Gmail opened with your message ready. Review it and press Send to deliver.";
 });
