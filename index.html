@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lashes By Micha | Luxury Lash Extensions</title>
+<meta name="description" content="Luxury lash extensions: classic, hybrid, volume and mega volume.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Reusable SVG shapes: bow, heart, lash, sparkle -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="bow" viewBox="0 0 100 60"><path d="M50 30C35 5 5 2 4 20c-1 18 28 18 46 10 18 8 47 8 46-10C95 2 65 5 50 30z" fill="currentColor"/><circle cx="50" cy="30" r="8" fill="currentColor" stroke="#fff" stroke-width="2"/><path d="M46 36 36 58M54 36l10 22" stroke="currentColor" stroke-width="5" stroke-linecap="round"/></symbol>
+  <symbol id="heart" viewBox="0 0 24 24"><path d="M12 21C5 15 2 11.500 2 8a5 5 0 0 1 10-1 5 5 0 0 1 10 1c0 3.500-3 7-10 13z" fill="currentColor"/></symbol>
+  <symbol id="lash" viewBox="0 0 200 80"><path d="M10 60Q100 95 190 60" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><g stroke="currentColor" stroke-width="2.500" stroke-linecap="round" fill="none"><path d="M24 64Q10 40 6 22"/><path d="M45 71Q32 42 30 14"/><path d="M68 76Q60 44 62 8"/><path d="M92 79Q92 45 98 4"/><path d="M116 78Q124 46 134 8"/><path d="M140 75Q156 46 168 16"/><path d="M162 69Q182 46 192 28"/></g></symbol>
+  <symbol id="spark" viewBox="0 0 24 24"><path d="M12 0Q13 11 24 12 13 13 12 24 11 13 0 12 11 11 12 0z" fill="currentColor"/></symbol>
+</svg>
+
+<div id="loader">
+  <div class="loader-eyes" aria-hidden="true">
+    <div class="loader-eye">
+      <svg class="eye-art" viewBox="0 0 120 80">
+        <path d="M6 40Q60 -4 114 40Q60 84 6 40Z" fill="#fff" stroke="currentColor" stroke-width="3"/>
+        <ellipse cx="60" cy="43" rx="20" ry="25" fill="#ff69b4"/>
+        <ellipse cx="60" cy="43" rx="10" ry="17" fill="#0a0a0a"/>
+        <circle cx="53" cy="34" r="6" fill="#fff"/>
+        <circle cx="67" cy="50" r="3" fill="#fff"/>
+        <path d="M8 39Q60 -5 112 39" fill="none" stroke="#0a0a0a" stroke-width="4" stroke-linecap="round"/>
+        <path d="M18 29 9 18M31 19 26 6M46 12 44 1M63 10 65 0M79 14 84 3M94 22 103 11" fill="none" stroke="#0a0a0a" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <svg class="eye-lid" viewBox="0 0 120 80">
+        <path d="M0 0H120V80H0Z" fill="var(--blush)"/>
+        <path d="M5 58Q60 84 115 58" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        <path d="M17 63 8 72M32 68 27 78M48 71 46 80M65 71 67 80M81 68 86 78M97 63 106 72" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="loader-eye">
+      <svg class="eye-art" viewBox="0 0 120 80">
+        <path d="M6 40Q60 -4 114 40Q60 84 6 40Z" fill="#fff" stroke="currentColor" stroke-width="3"/>
+        <ellipse cx="60" cy="43" rx="20" ry="25" fill="#ff69b4"/>
+        <ellipse cx="60" cy="43" rx="10" ry="17" fill="#0a0a0a"/>
+        <circle cx="53" cy="34" r="6" fill="#fff"/>
+        <circle cx="67" cy="50" r="3" fill="#fff"/>
+        <path d="M8 39Q60 -5 112 39" fill="none" stroke="#0a0a0a" stroke-width="4" stroke-linecap="round"/>
+        <path d="M18 29 9 18M31 19 26 6M46 12 44 1M63 10 65 0M79 14 84 3M94 22 103 11" fill="none" stroke="#0a0a0a" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <svg class="eye-lid" viewBox="0 0 120 80">
+        <path d="M0 0H120V80H0Z" fill="var(--blush)"/>
+        <path d="M5 58Q60 84 115 58" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        <path d="M17 63 8 72M32 68 27 78M48 71 46 80M65 71 67 80M81 68 86 78M97 63 106 72" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+  <p>Loading beauty…</p>
+</div>
+<div id="progress"></div>
+<div id="hearts" aria-hidden="true"></div>
+
+<!-- NAVBAR -->
+<header id="nav">
+  <a href="#home" class="logo">Lashes By Micha <svg class="ico"><use href="#bow"/></svg></a>
+  <button id="burger" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  <nav id="menu">
+    <a href="#home">Home</a><a href="#about">About</a><a href="#services">Services</a>
+    <a href="#prices">Price List</a><a href="#gallery">Gallery</a><a href="#contact">Contact</a>
+    <a href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=micahnurse60%40gmail.com" class="btn btn-sm" data-email-book>Book Now</a>
+  </nav>
+</header>
+
+<main>
+<!-- 1 HERO -->
+<section id="home" class="hero">
+  <div class="glow g1"></div><div class="glow g2"></div>
+  <svg class="deco bow d1"><use href="#bow"/></svg>
+  <svg class="deco bow d2"><use href="#bow"/></svg>
+  <svg class="deco heart d3"><use href="#heart"/></svg>
+  <svg class="deco spark d4"><use href="#spark"/></svg>
+  <svg class="deco spark d5"><use href="#spark"/></svg>
+  <div class="hero-in">
+    <p class="kicker">Lashes By Micha</p>
+    <h1><span class="line"><span>Where Beauty</span></span><span class="line"><span>Meets the <em>Blink</em></span></span></h1>
+    <p class="sub">Luxury lash extensions, tailored to your eyes, so you wake up ready.</p>
+    <div class="actions">
+      <a href="#booking" class="btn" data-book>Book Your Appointment</a>
+      <a href="#services" class="btn btn-ghost">Explore Our Services</a>
+    </div>
+    <svg class="hero-lash"><use href="#lash"/></svg>
+  </div>
+</section>
+
+<!-- 2 ABOUT -->
+<section id="about" class="sec">
+  <div class="wrap two">
+    <div class="reveal profile">
+      <div class="photo"><svg><use href="#lash"/></svg><span></span></div>
+      <svg class="deco bow b-tl"><use href="#bow"/></svg>
+      <svg class="deco heart b-br"><use href="#heart"/></svg>
+    </div>
+    <div class="reveal">
+      <h2>Meet your lash artist</h2>
+      <p>Hi, I'm <strong>Micha</strong>, a aspiring lash artist with a love for detail and a gentle hand. Every set is mapped to your eye shape so it looks natural, polished and made for you.</p>
+      <p>Come as you are. Leave with lashes you love, in a calm and welcoming space where you can relax while I do the work.</p>
+      <p class="sign">With love, Micha ♡</p>
+    </div>
+  </div>
+</section>
+
+<!-- 3 SERVICES -->
+<section id="services" class="sec blush">
+  <div class="wrap">
+    <h2 class="center reveal">Lash services</h2>
+    <p class="center lead reveal">Pick the look that fits you. More styles and pricing are shown below.</p>
+    <div class="grid cards">
+      <article class="card reveal" data-service="Classic"><div class="img i1"><svg><use href="#lash"/></svg></div><h3>Classic Lash Extensions</h3><p>One extension per natural lash for a soft, mascara-like finish.</p><p class="meta"><b>R50</b></p><a href="#booking" class="btn btn-sm" data-service-book>Book this</a></article>
+      <article class="card reveal" data-service="Hybrid"><div class="img i2"><svg><use href="#lash"/></svg></div><h3>Hybrid Lash Extensions</h3><p>A mix of classic and volume fans for texture with a natural look.</p><p class="meta"><b>R50</b></p><a href="#booking" class="btn btn-sm" data-service-book>Book this</a></article>
+      <article class="card reveal" data-service="Volume"><div class="img i3"><svg><use href="#lash"/></svg></div><h3>Volume Lash Extensions</h3><p>Lightweight handmade fans for a full, fluffy, glamorous look.</p><p class="meta"><b>R50</b></p><a href="#booking" class="btn btn-sm" data-service-book>Book this</a></article>
+      <article class="card reveal" data-service="Cateye"><div class="img i4"><svg><use href="#lash"/></svg></div><h3>Cateye Lash Extensions</h3><p>A lifted, elongated outer-corner style for a sleek, winged look.</p><p class="meta"><b>R50</b></p><a href="#booking" class="btn btn-sm" data-service-book>Book this</a></article>
+      <article class="card reveal" data-service="Anime"><div class="img i5"><svg><use href="#lash"/></svg></div><h3>Anime Lash Extensions</h3><p>Wispy, spiky lash lengths create a bold, doll-like, wide-eyed look.</p><p class="meta"><b>R60</b></p><a href="#booking" class="btn btn-sm" data-service-book>Book this</a></article>
+    </div>
+  </div>
+</section>
+
+<!-- 4 PRICES -->
+<section id="prices" class="sec">
+  <div class="wrap">
+    <h2 class="center reveal">Price list <svg class="ico"><use href="#bow"/></svg></h2>
+    <div class="grid prices">
+      <div class="plist reveal"><h3><svg class="ico"><use href="#heart"/></svg> Full sets</h3>
+        <ul><li><span>Classic</span><i></i><b>R50</b></li><li><span>Volume</span><i></i><b>R50</b></li><li><span>Hybrid</span><i></i><b>R50</b></li><li><span>Cateye</span><i></i><b>R50</b></li><li><span>Anime</span><i></i><b>R60</b></li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 GALLERY -->
+<section id="gallery" class="sec blush">
+  <div class="wrap">
+    <h2 class="center reveal">Lash gallery</h2>
+    <div class="gallery">
+      <div class="tile t1 reveal"><svg><use href="#lash"/></svg><span>Coming Soon</span></div>
+      <div class="tile t2 reveal"><svg><use href="#lash"/></svg><span>Coming Soon</span></div>
+      <div class="tile t3 reveal"><svg><use href="#lash"/></svg><span>Coming Soon</span></div>
+      <div class="tile t4 reveal"><svg><use href="#lash"/></svg><span>Coming Soon</span></div>
+      <div class="tile t5 reveal"><svg><use href="#lash"/></svg><span>Coming Soon</span></div>
+      <div class="tile t6 reveal"><svg><use href="#lash"/></svg><span>Coming Soon</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 BOOKING -->
+<section id="booking" class="book">
+  <svg class="deco bow d1"><use href="#bow"/></svg>
+  <svg class="deco heart d3"><use href="#heart"/></svg>
+  <svg class="deco spark d4"><use href="#spark"/></svg>
+  <div class="wrap center reveal">
+    <h2>Ready for your best lashes?</h2>
+    <p class="lead">Choose how you would like to send your booking request.</p>
+    <div class="actions c">
+      <a href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=micahnurse60%40gmail.com" class="btn btn-white" data-email-book target="_blank" rel="noopener">Book Now by Email</a>
+      <a href="#" class="btn btn-ghost-w" data-book-wa target="_blank" rel="noopener">WhatsApp</a>
+      <a href="https://ig.me/m/im.michx_" class="btn btn-ghost-w" data-book-ig target="_blank" rel="noopener">Instagram</a>
+    </div>
+    <p id="booking-status" role="status" aria-live="polite"></p>
+  </div>
+</section>
+
+<!-- 7 CONTACT -->
+<section id="contact" class="sec">
+  <div class="wrap two">
+    <div class="reveal">
+      <h2>Get in touch</h2>
+      <ul class="info">
+        <li><b>WhatsApp</b><a href="#" data-wa target="_blank" rel="noopener">+27 67 847 7634</a></li>
+        <li><b>Instagram</b><a href="https://instagram.com/im.michx_" target="_blank" rel="noopener" data-ig>@im.michx_</a></li>
+        <li><b>Email</b><a href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=micahnurse60%40gmail.com" data-email-book>micahnurse60@gmail.com</a></li>
+        <li><b>Hours</b>Mon to Fri 10:00 to 16:00<br>Sat closed<br>Sun closed</li>
+      </ul>
+    </div>
+    <form id="form" class="reveal" novalidate>
+      <label>Name<input id="fn" name="name" autocomplete="name"><small></small></label>
+      <label>Email<input id="fe" name="email" type="email" autocomplete="email"><small></small></label>
+      <label>Message<textarea id="fm" name="message" rows="4"></textarea><small></small></label>
+      <button class="btn" type="submit">Send message</button>
+      <p id="status" role="status"></p>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="logo">Your Lash Studio <svg class="ico"><use href="#bow"/></svg></div>
+  <div class="social"><a href="https://instagram.com/im.michx_" target="_blank" rel="noopener" data-ig>Instagram</a><a href="#" data-wa target="_blank" rel="noopener">WhatsApp</a><a href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=micahnurse60%40gmail.com" data-email-book>Email</a></div>
+  <p>© <span id="yr">2026</span> Lashes By Micha. All rights reserved. <svg class="ico"><use href="#heart"/></svg></p>
+  <p><i> Made By Her man </i></p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
