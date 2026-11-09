@@ -6,6 +6,7 @@
   --ease:cubic-bezier(.2,.7,.2,1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
+iframe#nl-badge-frame{display:none!important}
 html{scroll-behavior:smooth;scroll-padding-top:72px}
 body{font-family:var(--sans);font-weight:300;color:var(--black);background:var(--white);line-height:1.7;overflow-x:hidden}
 img,svg{max-width:100%}
