@@ -259,12 +259,14 @@ footer p{font-size:.85rem;opacity:.7}
 .tryon-consent,.booking-intro{font-size:.82rem;line-height:1.45;color:#5a4550}
 .tryon-actions,.booking-actions{display:flex;flex-wrap:wrap;gap:.5rem}
 .tryon-actions .btn,.booking-actions .btn{min-height:48px;padding:.65rem .9rem;font-size:.82rem}
+.tryon-actions [hidden]{display:none}
+.tryon-pane>*{flex-shrink:0}
 .tryon-upload{position:relative;display:inline-flex;align-items:center;justify-content:center;overflow:hidden}
 .tryon-upload input{position:absolute;width:1px;height:1px;min-height:1px;opacity:0;inset:auto}
 .tryon-video{width:100%;max-height:300px;aspect-ratio:4/3;object-fit:cover;border-radius:16px;background:#1a1015}
-.tryon-stage{position:relative;width:100%;overflow:hidden;border-radius:16px;background:#f7dce8}
+.tryon-stage{position:relative;flex:0 0 auto;max-width:100%;overflow:hidden;border-radius:16px;background:#1a1015;margin-inline:auto}
 .tryon-stage[hidden]{display:none}
-.tryon-stage img{display:block;width:100%;height:auto}
+.tryon-stage img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:fill}
 .tryon-stage canvas{position:absolute;inset:0;width:100%;height:100%;clip-path:inset(0 0 0 var(--compare,50%));pointer-events:none}
 .compare-before,.compare-after{position:absolute;top:.5rem;padding:.2rem .5rem;border-radius:999px;background:rgba(10,10,10,.65);color:#fff;font-size:.7rem}
 .tryon-stage:not([data-detected="true"]) .compare-before,.tryon-stage:not([data-detected="true"]) .compare-after{display:none}
@@ -276,10 +278,12 @@ footer p{font-size:.85rem;opacity:.7}
 .manual-eyes[data-style="classic"] path:last-child{stroke-width:2}
 .manual-eyes[data-style="hybrid"] path:last-child{stroke-width:2.7}
 .manual-eyes[data-style="volume"] path:last-child{stroke-width:3.4}
-.manual-eyes[data-style="mega-volume"] path:last-child{stroke-width:4.2}
-.tryon-manual p,.tryon-disclaimer{font-size:.78rem;line-height:1.45;color:#5a4550}
+.manual-eyes[data-style="cateye"] path:last-child{stroke-width:2.7}
+.manual-eyes[data-style="anime"] path:last-child{stroke-width:3.4}
+.tryon-assessment,.tryon-disclaimer{font-size:.78rem;line-height:1.45;color:#5a4550}
+.tryon-assessment{margin:0}
 .tryon-style-picker{display:flex;flex-wrap:wrap;gap:.4rem;padding:.1rem .05rem .3rem}
-.tryon-style-picker button{min-width:65px}
+.tryon-style-picker button{min-width:65px;min-height:48px}
 .tryon-download{align-self:flex-start}
 .tryon-download:disabled{opacity:.5;cursor:not-allowed}
 .tryon-disclaimer{font-size:.72rem}
