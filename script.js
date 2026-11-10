@@ -186,7 +186,7 @@ const KNOWLEDGE = {
     }
   },
   intents: [
-    { id: "camera", keywords: ["use camera", "camera", "take a photo", "take photo", "take a picture", "selfie"], answer: "Sure! I can open the camera so you can take a photo. Camera permission is requested only after you press the button below." },
+    { id: "tryon", keywords: ["try on", "try-on", "on my face", "put lashes on", "photo preview", "photo try"], answer: "This website doesn't offer a photo try-on, so I can't place lash styles on your face. I can explain how each style looks, or you can message Micha for a personal recommendation." },
     { id: "fills", keywords: ["fill", "refill", "infill", "maintenance", "how often"], answer: "Fills refresh grown-out or shed extensions. Many clients discuss a fill about every 2–3 weeks, but lash growth and retention differ for everyone. Fill prices and appointment durations are not listed on the current page; ask Micha what timing and service she recommends for your set." },
     { id: "removal", keywords: ["removal", "remove", "take off", "remover"], answer: "Please ask Micha about safe professional removal and the current removal price, which is not listed on the page. Avoid pulling or cutting extensions yourself, as that can damage your natural lashes." },
     { id: "prices", keywords: ["price", "prices", "cost", "how much", "rate"], answer: "The current page lists full sets at R50 for Classic, Hybrid, Volume and Cateye, and R60 for Anime. Mega Volume, fills, removals and appointment durations are not listed yet, so please ask Micha to confirm before booking." },
@@ -212,7 +212,6 @@ const chatPrivacy = $("#chat-privacy");
 const chatStarters = $("#chat-starters");
 const chatMoreStarters = $("#chat-more-starters");
 const chatExtraStarters = $("#chat-extra-starters");
-const tryonAssessment = $("#tryon-assessment");
 const bookingService = $("#booking-service");
 const bookingName = $("#booking-name");
 const bookingEmail = $("#booking-email");
@@ -220,7 +219,6 @@ const bookingSummary = $("#booking-summary");
 const assistantBookingStatus = $("#assistant-booking-status");
 const assistantState = {
   messages: [],
-  style: "Classic",
   service: "",
   name: "",
   email: "",
@@ -229,7 +227,7 @@ const assistantState = {
 };
 let chatBusy = false;
 if (CONFIG.aiEndpoint.trim()) {
-  chatPrivacy.textContent = "Your photo stays on this device. Chat text is sent to the configured assistant endpoint. This is not medical advice.";
+  chatPrivacy.textContent = "Chat text is sent to the configured assistant endpoint. This is not medical advice.";
 }
 
 const CHAT_SERVICES = ["Classic", "Hybrid", "Volume", "Cateye", "Anime"];
@@ -344,24 +342,15 @@ function addServiceQuickChoices() {
 function getRuleBasedReply(text) {
   const suggestionScore = keywordScore(text, ["which lash style suits me", "what style suits me", "recommend a style", "suggest a style"]);
   if (suggestionScore >= 2) {
-    return {
-      text: "I can offer a fun visual guide from a front-facing photo, or explain each style so you can choose. The photo guide runs on your device; Micha will confirm what suits your natural lashes in person.",
-      action: { label: "Try a style on my photo", run: () => openTryonPane() }
-    };
+    return { text: "I can explain the differences: Classic is soft and natural, Hybrid adds texture, Volume is fuller, Cateye builds length toward the outer corners, and Anime has defined wispy spikes. Micha can recommend what suits your natural lashes in person." };
+  }
+  const photoRequest = KNOWLEDGE.intents.find(intent => intent.id === "tryon");
+  if (photoRequest && keywordScore(text, photoRequest.keywords) >= 2) {
+    return { text: photoRequest.answer, action: { label: "Ask Micha for a recommendation", url: whatsappUrl("Hi Micha, could you recommend a lash style for me?") } };
   }
   const style = detectStyle(text);
   if (style) {
-    if (["classic", "hybrid", "volume", "mega"].includes(style.key)) {
-      assistantState.style = style.style.label;
-      setTryonStyle(style.style.label);
-    } else if (style.key === "catEye" || style.key === "anime") {
-      assistantState.lashMap = style.key === "catEye" ? "cat-eye" : "doll";
-      setTryonStyle(style.key === "catEye" ? "Cateye" : "Anime");
-    }
-    return {
-      text: style.style.answer,
-      action: { label: "Try this style on a photo", run: () => openTryonPane() }
-    };
+    return { text: style.style.answer };
   }
   const best = KNOWLEDGE.intents
     .map(intent => ({ intent, score: keywordScore(text, intent.keywords) }))
@@ -374,18 +363,6 @@ function getRuleBasedReply(text) {
   }
   if (best.intent.id === "booking") {
     return { text: best.intent.answer, action: { label: "Choose a service", run: addServiceQuickChoices } };
-  }
-  if (best.intent.id === "camera") {
-    return {
-      text: best.intent.answer,
-      action: {
-        label: "Open camera",
-        run: () => {
-          openTryonPane();
-          startTryonCamera();
-        }
-      }
-    };
   }
   if (best.intent.id === "contact") {
     return { text: best.intent.answer, action: { label: "Message Micha on WhatsApp", url: whatsappUrl("Hi Micha, I would love to ask about lashes.") } };
@@ -416,7 +393,7 @@ async function getAssistantReply() {
       const response = await fetch(CONFIG.aiEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: assistantState.messages, selectedStyle: assistantState.style })
+        body: JSON.stringify({ messages: assistantState.messages })
       });
       if (!response.ok) throw new Error(`Assistant endpoint returned ${response.status}`);
       const data = await response.json();
@@ -442,11 +419,6 @@ async function sendChat(text) {
   assistantState.messages.push({ role: "user", content: cleanText });
   captureChatDetails(cleanText);
   chatInput.value = "";
-  const selectedStyle = detectStyle(cleanText);
-  if (selectedStyle && ["classic", "hybrid", "volume", "mega"].includes(selectedStyle.key)) {
-    assistantState.style = selectedStyle.style.label;
-    setTryonStyle(selectedStyle.style.label);
-  }
   const typing = addTypingIndicator();
   await new Promise(resolve => setTimeout(resolve, reduce ? 0 : 350));
   try {
@@ -485,7 +457,6 @@ function openAssistant() {
 
 function closeAssistant() {
   if (assistantPanel.hidden) return;
-  stopCamera();
   assistantPanel.hidden = true;
   assistantBackdrop.hidden = true;
   assistantToggle.setAttribute("aria-expanded", "false");
@@ -496,25 +467,16 @@ function closeAssistant() {
 
 const assistantPanes = {
   chat: { tab: $("#assistant-chat-tab"), pane: $("#assistant-chat") },
-  tryon: { tab: $("#assistant-tryon-tab"), pane: $("#assistant-tryon") },
   booking: { tab: $("#assistant-booking-tab"), pane: $("#assistant-booking") }
 };
 
 function setAssistantPane(name, focusSelector) {
-  if (name !== "tryon") stopCamera();
   Object.entries(assistantPanes).forEach(([key, item]) => {
     const active = key === name;
     item.tab.setAttribute("aria-selected", String(active));
     item.pane.hidden = !active;
   });
   if (focusSelector) $(focusSelector).focus();
-}
-
-function openTryonPane() {
-  setAssistantPane("tryon", "#tryon-camera");
-  if (!assistantPanel.hidden) return;
-  openAssistant();
-  setAssistantPane("tryon", "#tryon-camera");
 }
 
 function openBookingPane() {
@@ -548,7 +510,6 @@ chatMoreStarters.addEventListener("click", () => {
 $$("[data-quick]").forEach(button => button.addEventListener("click", () => {
   dismissChatStarters();
   const prompt = button.dataset.quick;
-  if (prompt === "Try lashes on my photo") { openTryonPane(); return; }
   if (prompt === "Check availability") {
     if (!assistantState.service) {
       addChatMessage("Of course! Which service would you like to book?", "assistant", { label: "Choose a service", run: addServiceQuickChoices });
@@ -576,385 +537,6 @@ chatInput.addEventListener("keydown", event => {
     event.preventDefault();
     chatForm.requestSubmit();
   }
-});
-
-/* ===== On-device photo try-on ===== */
-const tryonFile = $("#tryon-file");
-const tryonVideo = $("#tryon-video");
-const tryonCamera = $("#tryon-camera");
-const tryonCapture = $("#tryon-capture");
-const tryonStage = $("#tryon-stage");
-const tryonImage = $("#tryon-image");
-const tryonCanvas = $("#tryon-overlay");
-const tryonContext = tryonCanvas.getContext("2d");
-const tryonCompare = $("#tryon-compare");
-const tryonCompareWrap = $("#tryon-compare-wrap");
-const tryonManual = $("#tryon-manual");
-const tryonDownload = $("#tryon-download");
-let faceLandmarkerPromise = null;
-let detectedEyes = null;
-let currentPhotoUrl = "";
-let cameraStream = null;
-
-const STYLE_RENDER = {
-  "Classic": { spacing: 6, strands: 1, length: .075, width: .004 },
-  "Hybrid": { spacing: 4.4, strands: 2, length: .09, width: .0045 },
-  "Volume": { spacing: 3.2, strands: 3, length: .105, width: .005 },
-  "Cateye": { spacing: 4.4, strands: 2, length: .09, width: .0045, lashMap: "cat-eye" },
-  "Anime": { spacing: 3.2, strands: 3, length: .105, width: .005, lashMap: "doll" }
-};
-
-function setTryonStyle(styleName) {
-  if (!STYLE_RENDER[styleName]) return;
-  assistantState.style = styleName;
-  if (STYLE_RENDER[styleName].lashMap) assistantState.lashMap = STYLE_RENDER[styleName].lashMap;
-  $$("[data-tryon-style]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.tryonStyle === styleName)));
-  tryonManual.dataset.style = styleName.toLowerCase().replace(/\s/g, "-");
-  $(".manual-eyes").dataset.style = styleName.toLowerCase().replace(/\s/g, "-");
-  if (detectedEyes) {
-    drawLashOverlay();
-    tryonDownload.disabled = false;
-  } else {
-    tryonDownload.disabled = true;
-    tryonAssessment.textContent = `${styleName} selected. Add a clear, front-facing photo for the on-device preview, or use this illustration as a manual style guide.`;
-  }
-}
-
-$$("[data-tryon-style]").forEach(button => button.addEventListener("click", () => setTryonStyle(button.dataset.tryonStyle)));
-tryonCompare.addEventListener("input", () => tryonCanvas.style.setProperty("--compare", `${100 - Number(tryonCompare.value)}%`));
-
-function getFaceLandmarker() {
-  if (!faceLandmarkerPromise) {
-    faceLandmarkerPromise = (async () => {
-      const vision = await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm");
-      const files = await vision.FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
-      return vision.FaceLandmarker.createFromOptions(files, {
-        baseOptions: {
-          modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
-          delegate: "CPU"
-        },
-        runningMode: "IMAGE",
-        numFaces: 1
-      });
-    })().catch(error => {
-      faceLandmarkerPromise = null;
-      throw error;
-    });
-  }
-  return faceLandmarkerPromise;
-}
-
-function stopCamera() {
-  if (cameraStream) cameraStream.getTracks().forEach(track => track.stop());
-  cameraStream = null;
-  tryonVideo.srcObject = null;
-  tryonVideo.hidden = true;
-  tryonCapture.hidden = true;
-  tryonCamera.hidden = false;
-  tryonCamera.textContent = currentPhotoUrl ? "Retake photo" : "Use camera";
-}
-
-function resizedPhotoBlob(source, width, height) {
-  return new Promise((resolve, reject) => {
-    const scale = Math.min(1, 1024 / Math.max(width, height));
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.max(1, Math.round(width * scale));
-    canvas.height = Math.max(1, Math.round(height * scale));
-    const context = canvas.getContext("2d");
-    if (!context) { reject(new Error("Your browser could not prepare the photo.")); return; }
-    context.drawImage(source, 0, 0, canvas.width, canvas.height);
-    canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("Your browser could not prepare the photo.")), "image/jpeg", .9);
-  });
-}
-
-async function loadTryonPhoto(blob) {
-  stopCamera();
-  tryonAssessment.textContent = "Preparing your photo on this device…";
-  tryonDownload.disabled = true;
-  detectedEyes = null;
-  const sourceUrl = URL.createObjectURL(blob);
-  const sourceImage = new Image();
-  try {
-    await new Promise((resolve, reject) => {
-      sourceImage.onload = resolve;
-      sourceImage.onerror = () => reject(new Error("That image could not be opened. Try a JPEG or PNG photo."));
-      sourceImage.src = sourceUrl;
-    });
-    const smaller = await resizedPhotoBlob(sourceImage, sourceImage.naturalWidth, sourceImage.naturalHeight);
-    const nextUrl = URL.createObjectURL(smaller);
-    if (currentPhotoUrl) URL.revokeObjectURL(currentPhotoUrl);
-    currentPhotoUrl = nextUrl;
-    await new Promise((resolve, reject) => {
-      tryonImage.onload = resolve;
-      tryonImage.onerror = () => reject(new Error("Your resized photo could not be displayed."));
-      tryonImage.src = nextUrl;
-    });
-    tryonStage.hidden = false;
-    delete tryonStage.dataset.detected;
-    tryonCompareWrap.hidden = true;
-    tryonCanvas.width = tryonImage.naturalWidth;
-    tryonCanvas.height = tryonImage.naturalHeight;
-    tryonCanvas.style.setProperty("--compare", `${100 - Number(tryonCompare.value)}%`);
-    sizeTryonPreview();
-    tryonManual.hidden = true;
-    tryonStage.scrollIntoView({ block: "nearest", behavior: reduce ? "auto" : "smooth" });
-    await assessTryonPhoto();
-  } catch (error) {
-    tryonAssessment.textContent = `${error.message} You can still compare styles manually below.`;
-    tryonManual.hidden = false;
-    console.error("Photo try-on could not process the selected image.", error);
-  } finally {
-    URL.revokeObjectURL(sourceUrl);
-  }
-}
-
-function pointAt(landmarks, index) {
-  const point = landmarks[index];
-  return { x: point.x * tryonCanvas.width, y: point.y * tryonCanvas.height };
-}
-
-function averagePoints(points) {
-  return points.reduce((result, point) => ({ x: result.x + point.x / points.length, y: result.y + point.y / points.length }), { x: 0, y: 0 });
-}
-
-function pointDistance(a, b) {
-  return Math.hypot(a.x - b.x, a.y - b.y);
-}
-
-function buildEye(landmarks, outerIndex, innerIndex, upperIndices, upperCenterIndices, lowerCenterIndices) {
-  const contour = upperIndices.map(index => pointAt(landmarks, index));
-  const outer = pointAt(landmarks, outerIndex);
-  const inner = pointAt(landmarks, innerIndex);
-  const upperCenter = averagePoints(upperCenterIndices.map(index => pointAt(landmarks, index)));
-  const lowerCenter = averagePoints(lowerCenterIndices.map(index => pointAt(landmarks, index)));
-  return {
-    contour,
-    outer,
-    inner,
-    width: pointDistance(outer, inner),
-    height: pointDistance(upperCenter, lowerCenter)
-  };
-}
-
-async function assessTryonPhoto() {
-  tryonAssessment.textContent = "Loading the on-device face guide…";
-  let landmarker;
-  try {
-    landmarker = await getFaceLandmarker();
-  } catch (error) {
-    console.error("On-device face guide could not load.", error);
-    tryonAssessment.textContent = "The face-guide library could not load (you may be offline). Your photo stays here. Choose a style manually below, or try again with an internet connection.";
-    tryonManual.dataset.style = assistantState.style.toLowerCase().replace(/\s/g, "-");
-    tryonManual.hidden = false;
-    return;
-  }
-  try {
-    await new Promise(resolve => requestAnimationFrame(resolve));
-    const detectionStarted = performance.now();
-    const result = landmarker.detect(tryonImage);
-    const detectionDuration = performance.now() - detectionStarted;
-    if (!result.faceLandmarks || !result.faceLandmarks.length) {
-      tryonAssessment.textContent = "I couldn't find a face. Try better lighting, face the camera, and keep both eyes visible. You can still choose a style manually.";
-      tryonManual.hidden = false;
-      return;
-    }
-    const landmarks = result.faceLandmarks[0];
-    const eyes = [
-      buildEye(landmarks, 33, 133, [33, 160, 159, 158, 157, 173, 133], [159, 158], [145, 153]),
-      buildEye(landmarks, 263, 362, [263, 387, 386, 385, 384, 398, 362], [386, 385], [374, 380])
-    ];
-    if (eyes.some(eye => eye.width < 1 || eye.height / eye.width < .075)) {
-      tryonAssessment.textContent = "Your eyes look closed or are hard to see in this photo. Try a clear photo with both eyes open and facing the camera.";
-      tryonManual.hidden = false;
-      return;
-    }
-    detectedEyes = eyes;
-    tryonStage.dataset.detected = "true";
-    tryonCompareWrap.hidden = false;
-    tryonManual.hidden = false;
-    const averageWidth = (eyes[0].width + eyes[1].width) / 2;
-    const aspectRatio = averageWidth / ((eyes[0].height + eyes[1].height) / 2);
-    const spacingRatio = pointDistance(eyes[0].inner, eyes[1].inner) / averageWidth;
-    const tilt = ((eyes[0].inner.y - eyes[0].outer.y) / eyes[0].width + (eyes[1].inner.y - eyes[1].outer.y) / eyes[1].width) / 2;
-    const suggestedStyle = aspectRatio < 2.2 ? "Classic" : aspectRatio > 3.35 && tilt > .035 ? "Cateye" : aspectRatio > 3.35 || spacingRatio > .9 ? "Hybrid" : "Volume";
-    const suggestedMap = suggestedStyle === "Cateye" ? "cat-eye" : tilt < -.055 ? "doll" : spacingRatio > 1.15 ? "natural" : "wispy";
-    const tiltCategory = tilt > .055 ? "upturned" : tilt < -.055 ? "downturned" : "straight";
-    const tiltText = tiltCategory === "upturned" ? "upturned (slightly lifted) outer corners" : tiltCategory === "downturned" ? "downturned (slightly lower) outer corners" : "a straight, fairly level outer-corner line";
-    const spacingText = spacingRatio > 1.15 ? "a little more space between the eyes" : spacingRatio < .78 ? "eyes that sit a little closer together" : "balanced eye spacing";
-    const shapeText = aspectRatio < 2.2 ? "a rounder eye opening" : aspectRatio > 3.35 ? "a more elongated eye opening" : "balanced eye proportions";
-    assistantState.style = suggestedStyle;
-    assistantState.lashMap = suggestedMap;
-    setTryonStyle(suggestedStyle);
-    const slowDeviceNote = detectionDuration > 2500 ? " It took a little longer on this device, but your photo was still processed locally." : "";
-    tryonAssessment.textContent = `For fun, this guide suggests ${suggestedStyle} with a ${suggestedMap} map: it noticed ${shapeText}, ${tiltText} and ${spacingText}. This is only a visual guide; Micha will confirm in person.${slowDeviceNote}`;
-    drawLashOverlay();
-    tryonDownload.disabled = false;
-  } catch (error) {
-    detectedEyes = null;
-    tryonDownload.disabled = true;
-    tryonAssessment.textContent = "The face guide had trouble reading this photo. Try better lighting and a front-facing photo, or choose a style manually.";
-    console.error("On-device face assessment failed.", error);
-  }
-}
-
-function drawSingleEye(eye, settings) {
-  const contour = eye.contour;
-  const lengths = [];
-  let total = 0;
-  for (let index = 1; index < contour.length; index++) {
-    const segmentLength = pointDistance(contour[index - 1], contour[index]);
-    lengths.push(segmentLength);
-    total += segmentLength;
-  }
-  if (!total) return;
-  const lineCount = Math.max(8, Math.floor(total / settings.spacing));
-  tryonContext.lineCap = "round";
-  tryonContext.lineJoin = "round";
-  tryonContext.strokeStyle = "rgba(10, 10, 10, 0.78)";
-  tryonContext.lineWidth = Math.max(.65, eye.width * settings.width);
-  for (let index = 0; index <= lineCount; index++) {
-    const t = index / lineCount;
-    let remaining = t * total, segment = 0;
-    while (segment < lengths.length - 1 && remaining > lengths[segment]) {
-      remaining -= lengths[segment];
-      segment++;
-    }
-    const start = contour[segment], end = contour[segment + 1];
-    const ratio = lengths[segment] ? remaining / lengths[segment] : 0;
-    const root = { x: start.x + (end.x - start.x) * ratio, y: start.y + (end.y - start.y) * ratio };
-    const tangentLength = Math.max(1, lengths[segment]);
-    const tangent = { x: (end.x - start.x) / tangentLength, y: (end.y - start.y) / tangentLength };
-    let normal = { x: tangent.y, y: -tangent.x };
-    if (normal.y > 0) normal = { x: -normal.x, y: -normal.y };
-    const outward = { x: -tangent.x, y: -tangent.y };
-    let mapMultiplier = 1;
-    if (assistantState.lashMap === "cat-eye") mapMultiplier = 1.28 - .3 * t;
-    else if (assistantState.lashMap === "doll") mapMultiplier = 1.08 + .2 * (1 - Math.abs(t - .5) * 2);
-    else if (assistantState.lashMap === "natural") mapMultiplier = .92 + .16 * (1 - Math.abs(t - .5) * 2);
-    const outerMultiplier = 1.18 - .18 * t;
-    const baseLength = eye.width * settings.length * outerMultiplier * mapMultiplier;
-    for (let strand = 0; strand < settings.strands; strand++) {
-      const fanOffset = settings.strands === 1 ? 0 : (strand - (settings.strands - 1) / 2) * .12;
-      const direction = { x: normal.x + outward.x * .2 + tangent.x * fanOffset, y: normal.y + outward.y * .2 + tangent.y * fanOffset };
-      const directionSize = Math.hypot(direction.x, direction.y) || 1;
-      const length = baseLength * (strand === 0 ? 1 : .9 + .1 * (strand % 2));
-      const tip = { x: root.x + direction.x / directionSize * length, y: root.y + direction.y / directionSize * length };
-      tryonContext.beginPath();
-      tryonContext.moveTo(root.x, root.y);
-      tryonContext.quadraticCurveTo(root.x + direction.x * length * .35 + tangent.x * length * .08, root.y + direction.y * length * .35 + tangent.y * length * .08, tip.x, tip.y);
-      tryonContext.stroke();
-    }
-  }
-}
-
-function drawLashOverlay() {
-  if (!detectedEyes || !tryonContext) return;
-  tryonContext.clearRect(0, 0, tryonCanvas.width, tryonCanvas.height);
-  const settings = STYLE_RENDER[assistantState.style] || STYLE_RENDER.Classic;
-  detectedEyes.forEach(eye => drawSingleEye(eye, settings));
-}
-
-function sizeTryonPreview() {
-  if (!tryonImage.naturalWidth || !tryonImage.naturalHeight) return;
-  const stageParent = tryonStage.parentElement;
-  const parentStyle = getComputedStyle(stageParent);
-  const horizontalPadding = parseFloat(parentStyle.paddingLeft) + parseFloat(parentStyle.paddingRight);
-  const availableWidth = Math.max(1, stageParent.clientWidth - horizontalPadding);
-  const maxHeight = Math.min(innerHeight * .62, 520);
-  const scale = Math.min(availableWidth / tryonImage.naturalWidth, maxHeight / tryonImage.naturalHeight);
-  const width = Math.max(1, Math.round(tryonImage.naturalWidth * scale));
-  const height = Math.max(1, Math.round(tryonImage.naturalHeight * scale));
-  tryonStage.style.width = `${width}px`;
-  tryonStage.style.height = `${height}px`;
-  tryonStage.style.aspectRatio = `${width} / ${height}`;
-}
-
-addEventListener("resize", () => {
-  if (!tryonStage.hidden) sizeTryonPreview();
-}, { passive: true });
-
-$("#tryon-file").addEventListener("change", event => {
-  const file = event.target.files && event.target.files[0];
-  if (!file) return;
-  if (!file.type.startsWith("image/")) {
-    tryonAssessment.textContent = "Please choose an image file for your private try-on.";
-    event.target.value = "";
-    return;
-  }
-  loadTryonPhoto(file);
-  event.target.value = "";
-});
-
-async function startTryonCamera() {
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    tryonAssessment.textContent = "Camera access needs a supported browser and a secure HTTPS page. You can upload a photo instead.";
-    return;
-  }
-  try {
-    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
-    tryonVideo.srcObject = cameraStream;
-    tryonVideo.hidden = false;
-    tryonCamera.hidden = true;
-    tryonCapture.hidden = false;
-    await tryonVideo.play();
-    tryonCapture.focus();
-    tryonAssessment.textContent = "Face the camera in good light, keep both eyes open, then capture when ready.";
-  } catch (error) {
-    stopCamera();
-    const denied = error.name === "NotAllowedError" || error.name === "SecurityError";
-    tryonAssessment.textContent = denied
-      ? "Camera permission was denied. Allow camera access in your browser settings, or upload a photo instead."
-      : "The camera couldn't start on this device. Try uploading a photo instead.";
-    console.error("Camera could not be started.", error);
-  }
-}
-
-tryonCamera.addEventListener("click", startTryonCamera);
-
-tryonCapture.addEventListener("click", async () => {
-  if (!tryonVideo.videoWidth || !tryonVideo.videoHeight) {
-    tryonAssessment.textContent = "The camera is still starting. Please try capturing again in a moment.";
-    return;
-  }
-  try {
-    const captureCanvas = document.createElement("canvas");
-    const scale = Math.min(1, 1024 / Math.max(tryonVideo.videoWidth, tryonVideo.videoHeight));
-    captureCanvas.width = Math.round(tryonVideo.videoWidth * scale);
-    captureCanvas.height = Math.round(tryonVideo.videoHeight * scale);
-    captureCanvas.getContext("2d").drawImage(tryonVideo, 0, 0, captureCanvas.width, captureCanvas.height);
-    const blob = await new Promise((resolve, reject) => captureCanvas.toBlob(value => value ? resolve(value) : reject(new Error("Your browser couldn't capture the photo.")), "image/jpeg", .9));
-    await loadTryonPhoto(blob);
-  } catch (error) {
-    tryonAssessment.textContent = `${error.message} You can upload a photo instead.`;
-    console.error("Camera capture failed.", error);
-  }
-});
-
-$("#tryon-download").addEventListener("click", () => {
-  if (!detectedEyes || !tryonCanvas.width) return;
-  const output = document.createElement("canvas");
-  output.width = tryonCanvas.width;
-  output.height = tryonCanvas.height;
-  const context = output.getContext("2d");
-  context.drawImage(tryonImage, 0, 0);
-  context.drawImage(tryonCanvas, 0, 0);
-  output.toBlob(blob => {
-    if (!blob) {
-      tryonAssessment.textContent = "Your browser couldn't create the preview download. You can still view the comparison here.";
-      return;
-    }
-    try {
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "lashes-by-micha-preview.png";
-      link.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    } catch (error) {
-      tryonAssessment.textContent = "Your browser couldn't start the preview download. You can still view the comparison here.";
-      console.error("Lash preview download failed.", error);
-    }
-  }, "image/png");
 });
 
 /* ===== Service selection and honest booking hand-off ===== */
@@ -994,8 +576,7 @@ function calendlyPrefill(service) {
 function updateBookingSummary() {
   const service = bookingService.value;
   if (service) assistantState.service = service;
-  const selectedLashStyle = assistantState.style;
-  bookingSummary.textContent = `Service: ${service || "not selected"} · Try-on style: ${selectedLashStyle}. ${configuredCalendlyUrl(service) ? "Calendly will show live availability and confirm the appointment." : "This website can send a request only; Micha must confirm it."}`;
+  bookingSummary.textContent = `Service: ${service || "not selected"}. ${configuredCalendlyUrl(service) ? "Calendly will show live availability and confirm the appointment." : "This website can send a request only; Micha must confirm it."}`;
   const calendarUrl = calendlyPrefill(service);
   const calendlyLink = $("#booking-calendly-link");
   if (calendarUrl) {
@@ -1026,8 +607,7 @@ function bookingRequestMessage() {
     `Service: ${bookingService.value}`,
     `Preferred date: ${$("#booking-date").value || "not provided"}`,
     `Preferred time (South Africa, UTC+2): ${$("#booking-time").value || "not provided"}`,
-    `Name: ${bookingName.value.trim() || "not provided"}`,
-    `Try-on style: ${assistantState.style}`
+    `Name: ${bookingName.value.trim() || "not provided"}`
   ].join("\n");
 }
 

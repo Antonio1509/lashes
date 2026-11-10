@@ -214,13 +214,12 @@
 
   <div class="assistant-tabs" role="tablist" aria-label="Assistant tools">
     <button id="assistant-chat-tab" type="button" role="tab" aria-selected="true" aria-controls="assistant-chat">Chat</button>
-    <button id="assistant-tryon-tab" type="button" role="tab" aria-selected="false" aria-controls="assistant-tryon">Try-on</button>
     <button id="assistant-booking-tab" type="button" role="tab" aria-selected="false" aria-controls="assistant-booking">Availability</button>
   </div>
 
   <div id="assistant-chat" class="assistant-pane chat-pane" role="tabpanel" aria-labelledby="assistant-chat-tab">
     <div id="chat-messages" class="chat-messages" aria-live="polite" aria-relevant="additions text">
-      <div class="chat-message assistant-message"><p>Hi! Ask me about lash styles, prices or aftercare. I can also help you try a look or find booking options.</p></div>
+      <div class="chat-message assistant-message"><p>Hi! Ask me about lash styles, prices or aftercare. I can help you choose a style or find booking options.</p></div>
     </div>
     <div id="chat-starters" class="chat-starters">
       <div class="quick-replies" aria-label="Suggested questions">
@@ -230,7 +229,6 @@
         <button id="chat-more-starters" class="chat-more-starters" type="button" aria-expanded="false" aria-controls="chat-extra-starters">More</button>
       </div>
       <div id="chat-extra-starters" class="quick-replies chat-extra-starters" aria-label="More assistant options" hidden>
-        <button type="button" data-quick="Try lashes on my photo">Try-on</button>
         <button type="button" data-quick="Check availability">Availability</button>
         <button type="button" data-quick="Talk to Micha">Talk to Micha</button>
       </div>
@@ -242,45 +240,7 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </form>
-    <p id="chat-privacy" class="chat-privacy">Private photo try-on · Not medical advice</p>
-  </div>
-
-  <div id="assistant-tryon" class="assistant-pane tryon-pane" role="tabpanel" aria-labelledby="assistant-tryon-tab" hidden>
-    <p class="tryon-consent">Your photo stays on your device and is never uploaded. Face analysis runs on this device.</p>
-    <div class="tryon-actions">
-      <label class="tryon-upload btn btn-sm">Upload a photo
-        <input id="tryon-file" type="file" accept="image/*" capture="user">
-      </label>
-      <button id="tryon-camera" class="btn btn-sm btn-ghost" type="button">Use camera</button>
-      <button id="tryon-capture" class="btn btn-sm" type="button" hidden>Capture photo</button>
-    </div>
-    <video id="tryon-video" class="tryon-video" playsinline muted hidden aria-label="Camera preview"></video>
-    <div id="tryon-stage" class="tryon-stage" hidden>
-      <img id="tryon-image" alt="Your private lash try-on photo">
-      <canvas id="tryon-overlay" aria-hidden="true"></canvas>
-      <span class="compare-before" aria-hidden="true">Before</span>
-      <span class="compare-after" aria-hidden="true">After</span>
-    </div>
-    <label id="tryon-compare-wrap" class="tryon-compare" for="tryon-compare" hidden>
-      <span>Compare before / after</span>
-      <input id="tryon-compare" type="range" min="0" max="100" value="50" aria-label="Before and after comparison">
-    </label>
-    <div id="tryon-manual" class="tryon-manual">
-      <svg class="manual-eyes" data-style="classic" viewBox="0 0 220 70" role="img" aria-label="Illustration of softly curled lashes">
-        <path d="M8 36Q55 2 102 36Q55 68 8 36ZM118 36Q165 2 212 36Q165 68 118 36Z" fill="#fff0f5" stroke="#ff69b4" stroke-width="2"/>
-        <path d="M10 34Q55 4 100 34M120 34Q165 4 210 34M20 27l-7-10m23 2-4-13m25 7V0m23 9 5-12m27 14 8-10m30 7 3-13m25 14 6-10m20 23 8-9" fill="none" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round"/>
-      </svg>
-    </div>
-    <p id="tryon-assessment" class="tryon-assessment" role="status" aria-live="polite">Choose a style below, or add a photo for a fun on-device guide.</p>
-    <div class="tryon-style-picker" role="group" aria-label="Compare lash styles">
-      <button type="button" data-tryon-style="Classic" aria-pressed="true">Classic</button>
-      <button type="button" data-tryon-style="Hybrid" aria-pressed="false">Hybrid</button>
-      <button type="button" data-tryon-style="Volume" aria-pressed="false">Volume</button>
-      <button type="button" data-tryon-style="Cateye" aria-pressed="false">Cateye</button>
-      <button type="button" data-tryon-style="Anime" aria-pressed="false">Anime</button>
-    </div>
-    <button id="tryon-download" class="btn btn-sm tryon-download" type="button" disabled>Download my preview</button>
-    <p class="tryon-disclaimer">This is a fun visual guide, not a medical or professional assessment. Micha will confirm the best style in person.</p>
+    <p id="chat-privacy" class="chat-privacy">Assistant may be wrong · Not medical advice</p>
   </div>
 
   <div id="assistant-booking" class="assistant-pane booking-pane" role="tabpanel" aria-labelledby="assistant-booking-tab" hidden>
