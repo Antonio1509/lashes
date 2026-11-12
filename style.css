@@ -128,12 +128,16 @@ body.ready .hero .kicker,body.ready .hero .sub,body.ready .hero .actions,body.re
 
 /* ===== 7. Services ===== */
 .cards{grid-template-columns:1fr}
-.card{background:#fff;border-radius:22px;padding:1rem 1rem 1.5rem;box-shadow:0 8px 30px rgba(255,105,180,.18);display:flex;flex-direction:column;gap:.6rem;transition:transform .4s var(--ease),box-shadow .4s}
+.card{min-width:0;background:#fff;border-radius:22px;padding:1rem 1rem 1.5rem;box-shadow:0 8px 30px rgba(255,105,180,.18);display:flex;flex-direction:column;gap:.6rem;transition:transform .4s var(--ease),box-shadow .4s}
 .card:hover{transform:translateY(-8px);box-shadow:0 20px 45px rgba(255,20,147,.3)}
-.img{height:190px;border-radius:16px;display:grid;place-items:center;color:#fff;overflow:hidden;transition:filter .4s}
+.img{width:100%;aspect-ratio:4/5;border-radius:16px;overflow:hidden}
 .img svg{width:160px;height:64px;transition:transform .6s var(--ease)}
-.img img{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease)}
-.card:hover .img svg,.card:hover .img img{transform:scale(1.2)}
+/* For object-position, lower values show more of the top; higher values show more of the bottom. */
+.img img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 55%;transition:transform .6s var(--ease)}
+.img-top img{object-position:center 40%}
+.img-bottom img{object-position:center 70%}
+.card:hover .img svg{transform:scale(1.2)}
+.card:hover .img img{transform:scale(1.05)}
 .i1{background:linear-gradient(135deg,#FFC0CB,#FF9ECB)}.i2{background:linear-gradient(135deg,#FF9ECB,#FF69B4)}.i3{background:linear-gradient(135deg,#FF69B4,#FF1493)}
 .i4{background:linear-gradient(135deg,#FF1493,#c2185b)}.i5{background:linear-gradient(135deg,#ffd6e7,#FF9ECB)}.i6{background:linear-gradient(135deg,#0A0A0A,#4a1030)}
 .card h3,.card p{padding:0 .5rem}
